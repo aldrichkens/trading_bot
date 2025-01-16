@@ -407,7 +407,7 @@ def validate_and_buy(Last_110, buy_tp):
         SL_size = None
         return Buy, SL_price, TP1_price, OB_size, Entry_price, SL_size, p1, p2, p2_bos, p3, p4
     else:
-        SL_price = p3["price"].iloc[0] - 0.00007
+        SL_price = round(p3["price"].iloc[0] - 0.00007, 5)
         OB_size = round(p2_bos["price"].max() - p3["price"].iloc[0], 5)
         Entry_price = round(p2_bos["price"].max() - 0.6*OB_size + 0.00007, 5)
         SL_size = round(Entry_price - SL_price, 5)
