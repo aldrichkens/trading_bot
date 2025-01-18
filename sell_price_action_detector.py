@@ -292,7 +292,7 @@ def obtain_p1_p2_p3(rates_frame_p3):
         return p1_range_localminimas, p1_range_localmaximas, HH_HL_df, p1, p2, p3
 
 
-# In[25]:
+# In[5]:
 
 
 def validate_and_sell(rates_frame_p3, p3_rates_frame, sell_tp):
@@ -423,10 +423,12 @@ def validate_and_sell(rates_frame_p3, p3_rates_frame, sell_tp):
             return Sell, SL_price, TP1_price, OB_size, Entry_price, SL_size, p1, p2, p2_bos, p3, p4
 
 
-# In[38]:
+# In[18]:
 
 
-def verify_p4(p2_bos,p3,p4):
+# verify p4 before entry:
+def verify_p4(p2_bos,p3,p4,p3_rates_frame): 
+    # verify p4 before entry:
     # OBTAINING THE PRICE AND TIME OF P2_BOS, P3 AND P4 and their difference
     p4x = p4['time'].iloc[0]
     p4y = p4['price'].iloc[0]
@@ -440,12 +442,38 @@ def verify_p4(p2_bos,p3,p4):
     p2_bos_x_p3x = abs(p3x - p2_bos_x)
     p3x_p4x = abs(p4x - p3x)
     
+    # OBTAIN THE p4_rates_frame DATAFRAME:
+    mask = p3_rates_frame['time'] >= p4x
+    p4_rates_frame = p3_rates_frame[mask]
+    
+    #OBTAIN P5
+    p5y = p4_rates_frame["high"].max()
+    mask = p4_rates_frame['high'] == p5y
+    p5 = p4_rates_frame[mask].iloc[0]
+    p5x = p5['time'] #time of p5
+    
+    # OBTAIN P3-P5 RATES FRAME
+    mask = (p3_rates_frame['time'] >= p3x) & (p3_rates_frame['time'] <= p5x)
+    p3_p5_rates_frame = p3_rates_frame[mask]
+    
+    # Obtain the lows in P3-P5 RATES FRAME that are below the P2_BOS_Y
+    mask = p3_p5_rates_frame['low'] < p2_bos_y
+    p3_p5_rates_frame_lows_below_p2_bos = p3_p5_rates_frame[mask]
+    p3_p5_rates_frame_lows_below_p2_bos
+    
+    # calculate the time that price spent on the other side of the p2_bos:
+    bos_first_point_time = p3_p5_rates_frame_lows_below_p2_bos["time"].iloc[0]
+    bos_last_point_time = p3_p5_rates_frame_lows_below_p2_bos["time"].iloc[-1]
+    bos_time = bos_last_point_time - bos_first_point_time
+    bos_time
+    
     # OBTAINING THE RATIOS TO VALIDATE P4
-    condition1 = pd.Timedelta(minutes=1) <= p4x - p3x <= pd.Timedelta(minutes=33)
+    condition1 = pd.Timedelta(minutes=1) <= (p4x - p3x) <= pd.Timedelta(minutes=33)
     condition2 = 0.167 <= (p3x_p4x/p2_bos_x_p3x) <= 4.5
     condition3 = 1.0219 <= (p4y_p3y/p3y_p2_bos_y) <= 1.8889
-    condition = condition1 & condition2 & condition3
-
+    condition4 = pd.Timedelta(minutes=1) <= bos_time <= pd.Timedelta(minutes=17)
+    condition = condition1 & condition2 & condition3 & condition4
+    
     if condition:
         p4_is_valid = True
     elif condition == False:
