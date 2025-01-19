@@ -477,5 +477,5 @@ def verify_p4(p2_bos,p3,p4,p3_rates_frame):
     elif condition == False:
         p4_is_valid = False
 
-    return p4_is_valid
+    return p4_is_valid, p4_rates_frame
 
