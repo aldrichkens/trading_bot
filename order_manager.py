@@ -1,14 +1,22 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[8]:
+# In[28]:
 
 
 import MetaTrader5 as mt5
 import pandas as pd
+from datetime import datetime, timedelta, timezone, date
 
 
-# In[2]:
+# In[29]:
+
+
+with open("parameters.txt", "r") as file:
+    exec(file.read())
+
+
+# In[6]:
 
 
 def log_in_to_mt5():
@@ -20,7 +28,7 @@ def log_in_to_mt5():
     print("Connected to MT5 successfully")
 
 
-# In[ ]:
+# In[7]:
 
 
 def calculate_lot_size(SL_size):
@@ -35,17 +43,13 @@ def calculate_lot_size(SL_size):
     return lot_size
 
 
-# In[3]:
-
-
-
 # ### BUY LIMIT ORDER 
 
-# In[ ]:
+# In[4]:
 
 
 def place_buy_limit_order(symbol,limit_price, sl_price, tp_price, buy_tp):
-    SL_size = round(limit_price - sl_price,5) * 10000
+    SL_size = round(limit_price - sl_price,pip_precision) * 10000
     lot_size = calculate_lot_size(SL_size)     # Trade volume (lot size)
     
     # Ensure the symbol is available
@@ -111,12 +115,12 @@ def place_buy_limit_order(symbol,limit_price, sl_price, tp_price, buy_tp):
 
 # ### BUY STOP ORDER
 
-# In[ ]:
+# In[5]:
 
 
 def place_buy_stop_order(symbol,stop_price, sl_price, tp_price, buy_tp):
     
-    SL_size = round(stop_price - sl_price,5) * 10000
+    SL_size = round(stop_price - sl_price,pip_precision) * 10000
     lot_size = calculate_lot_size(SL_size)     # Trade volume (lot size)
     
     # Ensure the symbol is available
@@ -184,12 +188,12 @@ def place_buy_stop_order(symbol,stop_price, sl_price, tp_price, buy_tp):
 
 # ### SELL LIMIT ORDER
 
-# In[ ]:
+# In[6]:
 
 
 def place_sell_limit_order(symbol,limit_price, sl_price, tp_price, sell_tp):
 
-    SL_size = round(sl_price - limit_price,5) * 10000
+    SL_size = round(sl_price - limit_price,pip_precision) * 10000
     lot_size = calculate_lot_size(SL_size)     # Trade volume (lot size)
     
     # Ensure the symbol is available
@@ -263,12 +267,12 @@ def place_sell_limit_order(symbol,limit_price, sl_price, tp_price, sell_tp):
 
 # ### SELL STOP ORDER
 
-# In[ ]:
+# In[7]:
 
 
 def place_sell_stop_order(symbol,stop_price, sl_price, tp_price, sell_tp):
     
-    SL_size = round(sl_price - stop_price,5) * 10000
+    SL_size = round(sl_price - stop_price,pip_precision) * 10000
     lot_size = calculate_lot_size(SL_size)     # Trade volume (lot size)
 
     # Ensure the symbol is available
@@ -344,7 +348,7 @@ def place_sell_stop_order(symbol,stop_price, sl_price, tp_price, sell_tp):
 
 # ### MOVING THE STOP LOSS  FOR AN ONGOING TRADE (FOR BOTH BUYS AND SELLS)
 
-# In[ ]:
+# In[8]:
 
 
 def trail_stop_loss(symbol, new_stop_loss):
@@ -398,7 +402,7 @@ def trail_stop_loss(symbol, new_stop_loss):
 
 # ### DELETING AN ORDER (BUY LIMIT, BUY ORDER, SELL LIMIT, SELL ORDER)
 
-# In[ ]:
+# In[9]:
 
 
 def delete_order(symbol):
@@ -437,7 +441,7 @@ def delete_order(symbol):
     return 
 
 
-# In[39]:
+# In[10]:
 
 
 def show_orders_and_open_positions():
@@ -454,7 +458,6 @@ def show_orders_and_open_positions():
         print("__________________________________")
         print("No pending orders.")
         print("__________________________________")
-        print("************************************")
     else:
         print("************************************")
         print("__________________________________")
@@ -463,7 +466,6 @@ def show_orders_and_open_positions():
         df = pd.DataFrame(data)
         print(df)
         print("__________________________________")
-        print("************************************")
 
     if len(positions) == 0:
         print("__________________________________")
@@ -478,11 +480,35 @@ def show_orders_and_open_positions():
         print(df)
         print("__________________________________")
         print("************************************")
-        
 
 
-# In[ ]:
+# In[25]:
 
 
+def count_number_of_trades(symbol):
+    # Get today's date (without time info)
+    today_start = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
+    today_end = datetime.today().replace(hour=23, minute=59, second=59, microsecond=999999)
 
+    today_start_timestamp = today_start.timestamp()
+    today_end_timestamp = today_end.timestamp()
+
+    # Get trade history for today (executed orders)
+    history = mt5.history_orders_get(today_start, today_end)
+    
+   # Check if the result is empty
+    if history is None or len(history) == 0:
+       trade_count = int(0)
+    else:
+        # Filter trades for the specific symbol that were executed today
+        symbol_opened_trades_today = [
+        trade for trade in history
+        if trade.symbol == symbol and 
+        trade.type in [mt5.ORDER_TYPE_BUY, mt5.ORDER_TYPE_SELL] and  # Ensure it's an open order
+        trade.time_done >= today_start_timestamp  # Ensure it's opened today (time_done is when order was executed)
+    ]
+    
+        # Count the trades
+        trade_count = int(len(symbol_opened_trades_today)/2)
+    return trade_count
 

@@ -1,0 +1,13 @@
+symbol = 'GBPUSD'
+breathing_room = 0.00007
+pip_precision = 5
+#----------------------------------------
+pre_ldn_session_start_time = 9
+pre_ldn_session_end_time = 10
+ldn_session_start_time = 10
+ldn_session_end_time = 14
+pre_ny_session_start_time = 14
+pre_ny_session_end_time = 15
+ny_session_start_time = 15
+ny_session_end_time = 19
+#----------------------------------------
