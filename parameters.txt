@@ -1,4 +1,4 @@
-symbol = 'GBPUSD'
+symbol = 'AUDUSD'
 breathing_room = 0.00007
 pip_precision = 5
 #----------------------------------------

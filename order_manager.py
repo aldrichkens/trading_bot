@@ -503,12 +503,12 @@ def count_number_of_trades(symbol):
         # Filter trades for the specific symbol that were executed today
             open_trades = [
         trade for trade in history
-        if trade.symbol == symbol 
+        if trade.symbol == symbol
         and trade.type in [mt5.ORDER_TYPE_BUY, mt5.ORDER_TYPE_SELL]  # Only count open trades
         and today_start_timestamp <= trade.time_setup <= today_end_timestamp  # Opened today
     ]
-    unique_open_trades = {trade.position_id: trade for trade in open_trades}.values()
-    # Count the trades
-    trade_count = int(len(unique_open_trades))
+            unique_open_trades = {trade.position_id: trade for trade in open_trades}.values()
+            # Count the trades
+            trade_count = int(len(unique_open_trades))
     return trade_count
 
