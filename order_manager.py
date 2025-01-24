@@ -20,7 +20,7 @@ with open("parameters.txt", "r") as file:
 
 
 def log_in_to_mt5():
-    if not mt5.initialize(login=89500879, server="MetaQuotes-Demo", password="6kF-FhYd"):
+    if not mt5.initialize(login=username, server=server, password=password):
         print("Initialization failed")
         print(mt5.last_error())
         quit()
@@ -35,9 +35,9 @@ def calculate_lot_size(SL_size):
     account_info = mt5.account_info()
     account_size = account_info.balance
     
-    risk_amount = round(account_size,5) * 0.0025
+    risk_amount = round(account_size,5) * risk_percent * 100
     
-    lot_size = (risk_amount) / (SL_size * 10)
+    lot_size = (risk_amount) / (SL_size * pip_value)
     lot_size = round(lot_size,2)
     
     return lot_size
@@ -49,7 +49,7 @@ def calculate_lot_size(SL_size):
 
 
 def place_buy_limit_order(symbol,limit_price, sl_price, tp_price, buy_tp):
-    SL_size = round(limit_price - sl_price,pip_precision) * 10000
+    SL_size = round(limit_price - sl_price,pip_precision) * lot_multiplier
     lot_size = calculate_lot_size(SL_size)     # Trade volume (lot size)
     
     # Ensure the symbol is available
@@ -120,7 +120,7 @@ def place_buy_limit_order(symbol,limit_price, sl_price, tp_price, buy_tp):
 
 def place_buy_stop_order(symbol,stop_price, sl_price, tp_price, buy_tp):
     
-    SL_size = round(stop_price - sl_price,pip_precision) * 10000
+    SL_size = round(stop_price - sl_price,pip_precision) * lot_multiplier
     lot_size = calculate_lot_size(SL_size)     # Trade volume (lot size)
     
     # Ensure the symbol is available
@@ -193,7 +193,7 @@ def place_buy_stop_order(symbol,stop_price, sl_price, tp_price, buy_tp):
 
 def place_sell_limit_order(symbol,limit_price, sl_price, tp_price, sell_tp):
 
-    SL_size = round(sl_price - limit_price,pip_precision) * 10000
+    SL_size = round(sl_price - limit_price,pip_precision) * lot_multiplier
     lot_size = calculate_lot_size(SL_size)     # Trade volume (lot size)
     
     # Ensure the symbol is available
@@ -272,7 +272,7 @@ def place_sell_limit_order(symbol,limit_price, sl_price, tp_price, sell_tp):
 
 def place_sell_stop_order(symbol,stop_price, sl_price, tp_price, sell_tp):
     
-    SL_size = round(sl_price - stop_price,pip_precision) * 10000
+    SL_size = round(sl_price - stop_price,pip_precision) * lot_multiplier
     lot_size = calculate_lot_size(SL_size)     # Trade volume (lot size)
 
     # Ensure the symbol is available

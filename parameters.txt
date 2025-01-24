@@ -1,7 +1,13 @@
+#----------------------------------------
+# order manager
 symbol = 'AUDUSD'
+risk_percent = 0.25
+pip_value = 10
+lot_multiplier = 10000
 breathing_room = 0.00007
 pip_precision = 5
 #----------------------------------------
+# session times
 pre_ldn_session_start_time = 9
 pre_ldn_session_end_time = 10
 ldn_session_start_time = 10
@@ -11,3 +17,7 @@ pre_ny_session_end_time = 15
 ny_session_start_time = 15
 ny_session_end_time = 19
 #----------------------------------------
+# login credentials
+username = 89500879
+password = "6kF-FhYd"
+server = "MetaQuotes-Demo"
