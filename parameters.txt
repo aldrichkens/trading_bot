@@ -21,3 +21,7 @@ ny_session_end_time = 19
 username = 89500879
 password = "6kF-FhYd"
 server = "MetaQuotes-Demo"
+#----------------------------------------
+# telegram
+chatbot_token = "8088508136:AAFAKC121vYjIq5Rmd1l0RAyfoVtXGsa0Yk"
+chat_id = "7354711115"
