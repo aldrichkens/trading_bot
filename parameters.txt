@@ -18,10 +18,10 @@ ny_session_start_time = 15
 ny_session_end_time = 19
 #----------------------------------------
 # login credentials
-username = 89500879
-password = "6kF-FhYd"
+username = -----
+password = "-------
 server = "MetaQuotes-Demo"
 #----------------------------------------
 # telegram
-chatbot_token = "8088508136:AAFAKC121vYjIq5Rmd1l0RAyfoVtXGsa0Yk"
-chat_id = "7354711115"
+chatbot_token = "-----------"
+chat_id = "-1--------"
