@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[28]:
+# In[ ]:
 
 
 import MetaTrader5 as mt5
@@ -9,14 +9,14 @@ import pandas as pd
 from datetime import datetime, timedelta, timezone, date
 
 
-# In[29]:
+# In[ ]:
 
 
 with open("parameters.txt", "r") as file:
     exec(file.read())
 
 
-# In[6]:
+# In[ ]:
 
 
 def log_in_to_mt5():
@@ -28,14 +28,14 @@ def log_in_to_mt5():
     print("Connected to MT5 successfully")
 
 
-# In[7]:
+# In[ ]:
 
 
 def calculate_lot_size(SL_size):
     account_info = mt5.account_info()
     account_size = account_info.balance
     
-    risk_amount = round(account_size,5) * risk_percent * 100
+    risk_amount = round(account_size,5) * risk_percent / 100
     
     lot_size = (risk_amount) / (SL_size * pip_value)
     lot_size = round(lot_size,2)
@@ -45,7 +45,7 @@ def calculate_lot_size(SL_size):
 
 # ### BUY LIMIT ORDER 
 
-# In[4]:
+# In[ ]:
 
 
 def place_buy_limit_order(symbol,limit_price, sl_price, tp_price, buy_tp):
@@ -85,6 +85,8 @@ def place_buy_limit_order(symbol,limit_price, sl_price, tp_price, buy_tp):
     
     if result1.retcode == mt5.TRADE_RETCODE_DONE:
         print(f"Buy limit order placed successfully! Order ID: {result1.order}")
+    elif result2.retcode == 10027:
+        print("Turn on algo trading in MT5!")
     else:
         print(f"Failed to place buy limit order. Retcode: {result1.retcode}")
 # ---------------------------------------------------------  
@@ -108,6 +110,8 @@ def place_buy_limit_order(symbol,limit_price, sl_price, tp_price, buy_tp):
 
     if result2.retcode == mt5.TRADE_RETCODE_DONE:
         print(f"Buy limit order placed successfully! Order ID: {result2.order}")
+    elif result2.retcode == 10027:
+        print("Turn on algo trading in MT5!")
     else:
         print(f"Failed to place buy limit order. Retcode: {result2.retcode}")
     return
@@ -115,7 +119,7 @@ def place_buy_limit_order(symbol,limit_price, sl_price, tp_price, buy_tp):
 
 # ### BUY STOP ORDER
 
-# In[5]:
+# In[ ]:
 
 
 def place_buy_stop_order(symbol,stop_price, sl_price, tp_price, buy_tp):
@@ -148,6 +152,8 @@ def place_buy_stop_order(symbol,stop_price, sl_price, tp_price, buy_tp):
     result1 = mt5.order_send(request1)
     if result1 is None:
         print("Failed to send order. Error:", mt5.last_error())
+    elif result1.retcode == 10027:
+        print("Turn on algo trading in MT5!")
     else:
         if result1.retcode == mt5.TRADE_RETCODE_DONE:
             print(f"Buy stop order placed successfully! Order ID: {result1.order}")
@@ -177,6 +183,8 @@ def place_buy_stop_order(symbol,stop_price, sl_price, tp_price, buy_tp):
     # Check the result
     if result2 is None:
         print("Failed to send order. Error:", mt5.last_error())
+    elif result2.retcode == 10027:
+        print("Turn on algo trading in MT5!")
     else:
         if result2.retcode == mt5.TRADE_RETCODE_DONE:
             print(f"Buy stop order placed successfully! Order ID: {result2.order}")
@@ -188,7 +196,7 @@ def place_buy_stop_order(symbol,stop_price, sl_price, tp_price, buy_tp):
 
 # ### SELL LIMIT ORDER
 
-# In[6]:
+# In[ ]:
 
 
 def place_sell_limit_order(symbol,limit_price, sl_price, tp_price, sell_tp):
@@ -229,6 +237,8 @@ def place_sell_limit_order(symbol,limit_price, sl_price, tp_price, sell_tp):
 
     if result1 is None:
         print("Failed to send order. Error:", mt5.last_error())
+    elif result1.retcode == 10027:
+        print("Turn on algo trading in MT5!")
     else:
         if result1.retcode == mt5.TRADE_RETCODE_DONE:
             print(f"Sell limit order placed successfully! Order ID: {result1.order}")
@@ -256,6 +266,8 @@ def place_sell_limit_order(symbol,limit_price, sl_price, tp_price, sell_tp):
     
     if result2 is None:
         print("Failed to send order. Error:", mt5.last_error())
+    elif result2.retcode == 10027:
+        print("Turn on algo trading in MT5!")
     else:
         if result2.retcode == mt5.TRADE_RETCODE_DONE:
             print(f"Sell limit order placed successfully! Order ID: {result2.order}")
@@ -267,7 +279,7 @@ def place_sell_limit_order(symbol,limit_price, sl_price, tp_price, sell_tp):
 
 # ### SELL STOP ORDER
 
-# In[7]:
+# In[ ]:
 
 
 def place_sell_stop_order(symbol,stop_price, sl_price, tp_price, sell_tp):
@@ -309,6 +321,8 @@ def place_sell_stop_order(symbol,stop_price, sl_price, tp_price, sell_tp):
 
     if result1 is None:
         print("Failed to send order. Error:", mt5.last_error())
+    elif result1.retcode == 10027:
+        print("Turn on algo trading in MT5!")
     else:
         if result1.retcode == mt5.TRADE_RETCODE_DONE:
             print(f"Sell stop order placed successfully! Order ID: {result1.order}")
@@ -337,6 +351,8 @@ def place_sell_stop_order(symbol,stop_price, sl_price, tp_price, sell_tp):
     # Check the result
     if result2 is None:
         print("Failed to send order. Error:", mt5.last_error())
+    elif result2.retcode == 10027:
+        print("Turn on algo trading in MT5!")
     else:
         if result2.retcode == mt5.TRADE_RETCODE_DONE:
             print(f"Sell stop order placed successfully! Order ID: {result2.order}")
@@ -348,7 +364,7 @@ def place_sell_stop_order(symbol,stop_price, sl_price, tp_price, sell_tp):
 
 # ### MOVING THE STOP LOSS  FOR AN ONGOING TRADE (FOR BOTH BUYS AND SELLS)
 
-# In[8]:
+# In[ ]:
 
 
 def trail_stop_loss(symbol, new_stop_loss):
@@ -402,7 +418,7 @@ def trail_stop_loss(symbol, new_stop_loss):
 
 # ### DELETING AN ORDER (BUY LIMIT, BUY ORDER, SELL LIMIT, SELL ORDER)
 
-# In[9]:
+# In[ ]:
 
 
 def delete_order(symbol):
@@ -441,7 +457,7 @@ def delete_order(symbol):
     return 
 
 
-# In[10]:
+# In[ ]:
 
 
 def show_orders_and_open_positions():
@@ -482,7 +498,7 @@ def show_orders_and_open_positions():
         print("************************************")
 
 
-# In[25]:
+# In[ ]:
 
 
 def count_number_of_trades(symbol):

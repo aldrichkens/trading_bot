@@ -416,11 +416,11 @@ def validate_and_buy(rates_frame_p3, p3_rates_frame, buy_tp):
         OB_size = round(p2_bos["price"].max() - p3["price"].iloc[0], pip_precision)
         Entry_price = round(p2_bos["price"].max() - 0.6*OB_size + breathing_room, pip_precision)
         SL_size = round(Entry_price - SL_price, pip_precision)
-        TP1_price = round(Entry_price + (SL_size * 5), pip_precision)
+        TP1_price = round(Entry_price + (SL_size * RR_value), pip_precision)
         TP_size = buy_tp - Entry_price
         RR = TP_size / SL_size
     
-        if RR >= 5:
+        if RR >= RR_value:
             Buy = True
             return Buy, SL_price, TP1_price, OB_size, Entry_price, SL_size, p1, p2, p2_bos, p3, p4
         else:

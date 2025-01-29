@@ -418,11 +418,11 @@ def validate_and_sell(rates_frame_p3, p3_rates_frame, sell_tp):
         OB_size = round(p3["price"].iloc[0] - p2_bos["price"].min(), pip_precision)
         Entry_price = round(p2_bos["price"].min() + 0.6*OB_size - breathing_room, pip_precision)
         SL_size = round(SL_price - Entry_price, pip_precision)
-        TP1_price = round(Entry_price - (SL_size * 5), pip_precision)
+        TP1_price = round(Entry_price - (SL_size * RR_value), pip_precision)
         TP_size = Entry_price - sell_tp
         RR = TP_size / SL_size
 
-        if RR >= 5:
+        if RR >= RR_value:
             Sell = True
             return Sell, SL_price, TP1_price, OB_size, Entry_price, SL_size, p1, p2, p2_bos, p3, p4
         else:

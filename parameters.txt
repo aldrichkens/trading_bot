@@ -6,6 +6,9 @@ pip_value = 10
 lot_multiplier = 10000
 breathing_room = 0.00007
 pip_precision = 5
+RR_value = 5.0
+buy_tp = 0.62742 
+sell_tp = "-"
 #----------------------------------------
 # session times
 pre_ldn_session_start_time = 9
@@ -18,10 +21,10 @@ ny_session_start_time = 15
 ny_session_end_time = 19
 #----------------------------------------
 # login credentials
-username = -----
-password = "-------
+username = 89500879
+password = "6kF-FhYd"
 server = "MetaQuotes-Demo"
 #----------------------------------------
 # telegram
-chatbot_token = "-----------"
-chat_id = "-1--------"
+chatbot_token = "8088508136:AAFAKC121vYjIq5Rmd1l0RAyfoVtXGsa0Yk"
+chat_id = "7354711115"
