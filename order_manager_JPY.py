@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[9]:
+# In[1]:
 
 
 import MetaTrader5 as mt5
@@ -9,14 +9,14 @@ import pandas as pd
 from datetime import datetime, timedelta, timezone, date
 
 
-# In[10]:
+# In[2]:
 
 
 with open("parameters.txt", "r") as file:
     exec(file.read())
 
 
-# In[11]:
+# In[3]:
 
 
 def log_in_to_mt5():
@@ -28,7 +28,18 @@ def log_in_to_mt5():
     print("Connected to MT5 successfully")
 
 
-# In[5]:
+# In[7]:
+
+
+def calculate_pip_value():
+    tick = mt5.symbol_info_tick('USDJPY')
+    ask_price = tick.ask
+    
+    pip_value = (0.01 * 100000) / ask_price
+    return pip_value
+
+
+# In[6]:
 
 
 def calculate_lot_size(SL_size):
@@ -36,7 +47,7 @@ def calculate_lot_size(SL_size):
     account_size = account_info.balance
     
     risk_amount = round(account_size,5) * risk_percent / 100
-    
+    pip_value = calculate_pip_value()
     lot_size = (risk_amount) / (SL_size * pip_value)
     lot_size = round(lot_size,2)
     
@@ -45,7 +56,7 @@ def calculate_lot_size(SL_size):
 
 # ### BUY LIMIT ORDER 
 
-# In[12]:
+# In[ ]:
 
 
 def place_buy_limit_order(symbol,limit_price, sl_price, tp_price, buy_tp):
@@ -119,7 +130,7 @@ def place_buy_limit_order(symbol,limit_price, sl_price, tp_price, buy_tp):
 
 # ### BUY STOP ORDER
 
-# In[24]:
+# In[ ]:
 
 
 def place_buy_stop_order(symbol,stop_price, sl_price, tp_price, buy_tp):
@@ -196,7 +207,7 @@ def place_buy_stop_order(symbol,stop_price, sl_price, tp_price, buy_tp):
 
 # ### SELL LIMIT ORDER
 
-# In[26]:
+# In[ ]:
 
 
 def place_sell_limit_order(symbol,limit_price, sl_price, tp_price, sell_tp):
@@ -279,7 +290,7 @@ def place_sell_limit_order(symbol,limit_price, sl_price, tp_price, sell_tp):
 
 # ### SELL STOP ORDER
 
-# In[30]:
+# In[ ]:
 
 
 def place_sell_stop_order(symbol,stop_price, sl_price, tp_price, sell_tp):
