@@ -1,14 +1,14 @@
 #----------------------------------------
 # order manager
 symbol = 'AUDUSD'
-risk_percent = 0.25
+risk_percent = 0.5
 pip_value = 10
 lot_multiplier = 10000
-breathing_room = 0.00007
+breathing_room = 0.00005
 pip_precision = 5
 RR_value = 5.0
-buy_tp = 0.62742 
-sell_tp = "-"
+buy_tp = 0.62295
+sell_tp = 0.61400
 #----------------------------------------
 # session times
 pre_ldn_session_start_time = 9
@@ -19,3 +19,12 @@ pre_ny_session_start_time = 14
 pre_ny_session_end_time = 15
 ny_session_start_time = 15
 ny_session_end_time = 19
+#----------------------------------------
+# login credentials
+username = 140162
+password = "mmuutm84F$"
+server = "Thaurus-Demo"
+#----------------------------------------
+# telegram
+chatbot_token = "8088508136:AAFAKC121vYjIq5Rmd1l0RAyfoVtXGsa0Yk"
+chat_id = "7354711115"

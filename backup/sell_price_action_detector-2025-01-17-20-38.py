@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[56]:
+# In[1]:
 
 
 import numpy as np
@@ -11,14 +11,7 @@ from scipy.signal import find_peaks
 import time
 
 
-# In[57]:
-
-
-with open("parameters.txt", "r") as file:
-    exec(file.read())
-
-
-# In[58]:
+# In[2]:
 
 
 #Functions of the sell diagram ratio module
@@ -73,24 +66,24 @@ def create_empty_time_open_high_low_close_df():
     return df
 
 
-# In[7]:
+# In[5]:
 
 
 # FUNCTION TO DETECT P1 P2 P3 for the EXTERNAL AND INTERNAL
-def obtain_p1_p2_p3(rates_frame_p3):
+def obtain_p1_p2_p3(Last_110):
     #obtaining the maximum point from the last 110 minutes for sells
-    Max_110_y = rates_frame_p3["high"].max()
-    Max_110 = rates_frame_p3[rates_frame_p3["high"] == Max_110_y].iloc[[-1]]
+    Max_110_y = Last_110["high"].max()
+    Max_110 = Last_110[Last_110["high"] == Max_110_y].iloc[[-1]]
     
     #obtaining the minimum point from the last 110 minutes for sells
-    Min_110_y = rates_frame_p3["low"].min()
-    Min_110 = rates_frame_p3[rates_frame_p3["low"] == Min_110_y].iloc[[-1]]
+    Min_110_y = Last_110["low"].min()
+    Min_110 = Last_110[Last_110["low"] == Min_110_y].iloc[[-1]]
     
     # Creating a new dataframe for the start and end of the minimum points in order to grab the data of local maxima and minima in an uptrend
     p1_range_start_time = Min_110["time"].iloc[-1]
     p1_range_end_time = Max_110['time'].iloc[-1]
-    mask = rates_frame_p3["time"].ge(p1_range_start_time) & rates_frame_p3["time"].le(p1_range_end_time)
-    p1_range = rates_frame_p3[mask].reset_index(drop=True)
+    mask = Last_110["time"].ge(p1_range_start_time) & Last_110["time"].le(p1_range_end_time)
+    p1_range = Last_110[mask].reset_index(drop=True)
     
     # Find the index of local maximas
     local_maximas_i,_ = find_peaks(p1_range['high'].values)
@@ -109,18 +102,10 @@ def obtain_p1_p2_p3(rates_frame_p3):
     
     #to find the y value of the possible 2nd local minima:
     Pay3 = p1_range_localminimas["low"].min()
-	
     Pay3_index = compute_index_Pa_n(Pay3, p1_range_localminimas)
     Pay3_index_range = Pay3_index
     
     while True:
-        #finding the index of the 1st local maxima in the series "p1_range_localmaximas" as P2
-        condition1 = p1_range_localmaximas["time"].ge(p1_range.iloc[0,0])
-        condition2 = p1_range_localmaximas["time"].le(p1_range_localminimas.iloc[Pay3_index,0])
-        condition = condition1 & condition2
-        
-        Pay2 = p1_range_localmaximas[condition == True]['high'].values
-	
         try:
             #finding the index of the 1st local maxima in the series "p1_range_localmaxima" as P2
             condition1 = p1_range_localmaximas["time"].ge(p1_range.iloc[0,0])
@@ -151,8 +136,8 @@ def obtain_p1_p2_p3(rates_frame_p3):
     HH_HL_df = create_empty_time_price_df()
     
     #Grabbing the data attached to Pay*
-    mask = rates_frame_p3['low'] == Pay1
-    pa1 = rates_frame_p3[mask].drop(['open','high','close'], axis=1).drop_duplicates(subset=['low'], keep='last').rename(columns={"low":"price"})
+    mask = Last_110['low'] == Pay1
+    pa1 = Last_110[mask].drop(['open','high','close'], axis=1).drop_duplicates(subset=['low'], keep='last').rename(columns={"low":"price"})
     HH_HL_df = pd.concat([HH_HL_df, pa1], ignore_index=True)
     
     Pa2 = p1_range_localmaximas[p1_range_localmaximas['high'] == Pay2].drop(['open','low','close'], axis=1)
@@ -263,13 +248,13 @@ def obtain_p1_p2_p3(rates_frame_p3):
             # conditions for finding the right p1-p2-p3
             condition1 = 1.027 <= abs(p3y_p2y/p2y_p1y) <= 1.9286
             try:
-                condition2 = 0.217 <= abs(p3x_p2x/p2x_p1x) <= 5
+                condition2 = 0.217 <= p3x_p2x/p2x_p1x <= 5
             except ZeroDivisionError as err1:
                 condition2 = False
                 
             condition3 = p2x_p1x > pd.Timedelta(minutes=1)
             condition4 = pd.Timedelta(minutes=2) <= p2x_p1x <= pd.Timedelta(minutes=24)
-            condition5 = pd.Timedelta(minutes=2) <= p3x_p2x <= pd.Timedelta(minutes=28)
+            condition5 = pd.Timedelta(minutes=2) <= p3x_p2x <= pd.Timedelta(minutes=21)
             condition = condition1 & condition2 & condition3 & condition4 & condition5
             
             if condition:
@@ -288,7 +273,7 @@ def obtain_p1_p2_p3(rates_frame_p3):
                 p3 = pd.concat([p3,new_p3], ignore_index=True)
                 p2 = pd.concat([p2,new_p2], ignore_index=True)
                 p1 = pd.concat([p1,new_p1], ignore_index=True)
-            return  p1_range_localminimas, p1_range_localmaximas, HH_HL_df, p1, p2, p3
+                return  p1_range_localminimas, p1_range_localmaximas, HH_HL_df, p1, p2, p3
         
         if len(p1) != len(p2):
             print("Index error! P1 and P2 doesn't match!")
@@ -299,10 +284,10 @@ def obtain_p1_p2_p3(rates_frame_p3):
         return p1_range_localminimas, p1_range_localmaximas, HH_HL_df, p1, p2, p3
 
 
-# In[80]:
+# In[6]:
 
 
-def validate_and_sell(rates_frame_p3, p3_rates_frame, sell_tp):
+def validate_and_sell(Last_110, sell_tp):
     TP1_price = None
     # OBTAINING THE EXTERNAL p1-p2-p3
     (
@@ -312,16 +297,15 @@ def validate_and_sell(rates_frame_p3, p3_rates_frame, sell_tp):
         p1,
         p2,
         p3
-    ) = obtain_p1_p2_p3(rates_frame_p3)
-
+    ) = obtain_p1_p2_p3(Last_110)
     
     # FINDING THE VALUES OF THE OHLC DATAFRAME FROM THE EXTERNAL P2 AND P3 to HAVE THE INTERNAL P1-P2-P3
     if not len(p1) == 0 and not len(p2) == 0:
         p1_internal_range_start_time = p2["time"].iloc[-1]
         p1_internal_range_end_time = p3["time"].iloc[-1]
         
-        mask = (p1_internal_range_start_time <= rates_frame_p3["time"]) & (rates_frame_p3["time"] <= p1_internal_range_end_time)
-        p1_internal_range = rates_frame_p3[mask]
+        mask = (p1_internal_range_start_time <= Last_110["time"]) & (Last_110["time"] <= p1_internal_range_end_time)
+        p1_internal_range = Last_110[mask]
         
     try: 
         (
@@ -338,7 +322,7 @@ def validate_and_sell(rates_frame_p3, p3_rates_frame, sell_tp):
     except UnboundLocalError as ULE:
         #if there is no p1-p2-p3 because of the time limits, it will return a ULE, therefore, find the p1-p2-p3 with another dataframe
         #tail 42 is just temporary, gather more data for this
-        p1_internal_range = rates_frame_p3.tail(42)
+        p1_internal_range = Last_110.tail(42)
 
         try:
             (
@@ -355,7 +339,7 @@ def validate_and_sell(rates_frame_p3, p3_rates_frame, sell_tp):
         
             
     
-	# APPEND THE VALUES OF THE INTERNAL P1, P2, P3 to the external one. 
+    # APPEND THE VALUES OF THE INTERNAL P1, P2, P3 to the external one. 
     p1 = pd.concat([p1,p1_internal], ignore_index=True)
     p2 = pd.concat([p2,p2_internal], ignore_index=True)
     p3 = pd.concat([p3,p3_internal], ignore_index=True)
@@ -374,7 +358,10 @@ def validate_and_sell(rates_frame_p3, p3_rates_frame, sell_tp):
         
     try:
         #FINDING P4 RANGE DATAFRAME
-        p4_range = p3_rates_frame
+        p4_range_start_time = p3["time"].iloc[-1]
+        p4_range_end_time = Last_110["time"].iloc[-1]
+        mask = (p4_range_start_time <= Last_110["time"]) & (Last_110["time"] <= p4_range_end_time)
+        p4_range = Last_110[mask]
         
         #FIND THE INITIAL VALUE OF P4 ( MINIMUM LOW IN THE P4 RANGE)
         p4y = p4_range["low"].min()
@@ -385,7 +372,6 @@ def validate_and_sell(rates_frame_p3, p3_rates_frame, sell_tp):
         p4y = p4["price"].iloc[0]
         p2_index = 0
         p2_bos = create_empty_time_price_df()
-
     except IndexError as IE:
         Sell = False
         SL_price = None
@@ -414,87 +400,18 @@ def validate_and_sell(rates_frame_p3, p3_rates_frame, sell_tp):
         SL_size = None
         return Sell, SL_price, TP1_price, OB_size, Entry_price, SL_size, p1, p2, p2_bos, p3, p4
     else:
-        p2_bos = p2_bos.drop_duplicates(subset=["time", "price"])
-        p1 = p1.drop_duplicates(subset=["time", "price"])
-        p2 = p2.drop_duplicates(subset=["time", "price"])
-        num_rows_p2 = p2.shape[0]
-        p3 = p3.drop_duplicates(subset=["time", "price"])
-        p3 = p3.loc[p3.index.repeat(num_rows_p2)].reset_index(drop=True)
-        SL_price = round(p3["price"].iloc[0] + breathing_room,pip_precision)
-        OB_size = round(p3["price"].iloc[0] - p2_bos["price"].min(), pip_precision)
-        Entry_price = round(p2_bos["price"].min() + 0.6*OB_size - breathing_room, pip_precision)
-        SL_size = round(SL_price - Entry_price, pip_precision)
-        TP1_price = round(Entry_price - (SL_size * RR_value), pip_precision)
+        SL_price = round(p3["price"].iloc[0] + 0.00007,5)
+        OB_size = round(p3["price"].iloc[0] - p2_bos["price"].min(), 5)
+        Entry_price = round(p2_bos["price"].min() + 0.6*OB_size - 0.00007, 5)
+        SL_size = round(SL_price - Entry_price, 5)
+        TP1_price = round(Entry_price - (SL_size * 5), 5)
         TP_size = Entry_price - sell_tp
         RR = TP_size / SL_size
 
-        if RR >= RR_value:
+        if RR >= 5:
             Sell = True
             return Sell, SL_price, TP1_price, OB_size, Entry_price, SL_size, p1, p2, p2_bos, p3, p4
         else:
             Sell = False
             return Sell, SL_price, TP1_price, OB_size, Entry_price, SL_size, p1, p2, p2_bos, p3, p4
-
-
-# In[81]:
-
-
-# verify p4 before entry:
-def verify_p4(p2_bos,p3,p4,p3_rates_frame):
-    number_of_rows = p3.shape[0]
-    p4 = pd.concat([p4] * number_of_rows, ignore_index=True)
-    p4.reset_index(drop=True)
-    p4_is_valid = []
-    
-    for index, row in p2_bos.iterrows():
-        # OBTAINING THE PRICE AND TIME OF P2_BOS, P3 AND P4 and their difference
-        p4x = p4['time'].iloc[index]
-        p4y = p4['price'].iloc[index]
-        p3x = p3['time'].iloc[index]
-        p3y = p3['price'].iloc[index]
-        p2_bos_x = p2_bos['time'].iloc[index]
-        p2_bos_y = p2_bos['price'].iloc[index]
-        p4y_p3y = abs(p4y - p3y)
-        p3y_p2_bos_y = abs(p3y - p2_bos_y)
-        p3y_p4y = abs(p3y - p4y)
-        p2_bos_x_p3x = abs(p3x - p2_bos_x)
-        p3x_p4x = abs(p4x - p3x)
-            
-        # OBTAIN THE p4_rates_frame DATAFRAME:
-        mask = p3_rates_frame['time'] >= p4x
-        p4_rates_frame = p3_rates_frame[mask]
-        
-        #OBTAIN P5
-        p5y = p4_rates_frame["high"].max()
-        mask = p4_rates_frame['high'] == p5y
-        p5 = p4_rates_frame[mask].iloc[0]
-        p5x = p5['time'] #time of p5
-        
-        # OBTAIN P3-P5 RATES FRAME
-        mask = (p3_rates_frame['time'] >= p3x) & (p3_rates_frame['time'] <= p5x)
-        p3_p5_rates_frame = p3_rates_frame[mask]
-        
-        # Obtain the lows in P3-P5 RATES FRAME that are below the P2_BOS_Y
-        mask = p3_p5_rates_frame['low'] < p2_bos_y
-        p3_p5_rates_frame_lows_below_p2_bos = p3_p5_rates_frame[mask]
-        
-        # calculate the time that price spent on the other side of the p2_bos:
-        bos_first_point_time = p3_p5_rates_frame_lows_below_p2_bos["time"].iloc[0]
-        bos_last_point_time = p3_p5_rates_frame_lows_below_p2_bos["time"].iloc[-1]
-        bos_time = bos_last_point_time - bos_first_point_time
-        
-        # OBTAINING THE RATIOS TO VALIDATE P4
-        condition1 = pd.Timedelta(minutes=1) <= (p4x - p3x) <= pd.Timedelta(minutes=33)
-        condition2 = 0.167 <= (p3x_p4x/p2_bos_x_p3x) <= 4.5
-        condition3 = 1.0219 <= (p4y_p3y/p3y_p2_bos_y) <= 1.8889
-        condition4 = pd.Timedelta(minutes=0) <= bos_time <= pd.Timedelta(minutes=17)
-        condition = condition1 & condition2 & condition3 & condition4
-        
-        if condition:
-            is_valid = True
-        elif condition == False:
-            is_valid = False
-        p4_is_valid.append(is_valid)
-    result = any(p4_is_valid)
-    return result
 

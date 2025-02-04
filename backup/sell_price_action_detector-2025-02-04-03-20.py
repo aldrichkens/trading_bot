@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[56]:
+# In[1]:
 
 
 import numpy as np
@@ -11,14 +11,14 @@ from scipy.signal import find_peaks
 import time
 
 
-# In[57]:
+# In[ ]:
 
 
 with open("parameters.txt", "r") as file:
     exec(file.read())
 
 
-# In[58]:
+# In[2]:
 
 
 #Functions of the sell diagram ratio module
@@ -73,7 +73,7 @@ def create_empty_time_open_high_low_close_df():
     return df
 
 
-# In[7]:
+# In[6]:
 
 
 # FUNCTION TO DETECT P1 P2 P3 for the EXTERNAL AND INTERNAL
@@ -269,7 +269,7 @@ def obtain_p1_p2_p3(rates_frame_p3):
                 
             condition3 = p2x_p1x > pd.Timedelta(minutes=1)
             condition4 = pd.Timedelta(minutes=2) <= p2x_p1x <= pd.Timedelta(minutes=24)
-            condition5 = pd.Timedelta(minutes=2) <= p3x_p2x <= pd.Timedelta(minutes=28)
+            condition5 = pd.Timedelta(minutes=2) <= p3x_p2x <= pd.Timedelta(minutes=21)
             condition = condition1 & condition2 & condition3 & condition4 & condition5
             
             if condition:
@@ -288,7 +288,7 @@ def obtain_p1_p2_p3(rates_frame_p3):
                 p3 = pd.concat([p3,new_p3], ignore_index=True)
                 p2 = pd.concat([p2,new_p2], ignore_index=True)
                 p1 = pd.concat([p1,new_p1], ignore_index=True)
-            return  p1_range_localminimas, p1_range_localmaximas, HH_HL_df, p1, p2, p3
+                return  p1_range_localminimas, p1_range_localmaximas, HH_HL_df, p1, p2, p3
         
         if len(p1) != len(p2):
             print("Index error! P1 and P2 doesn't match!")
@@ -299,7 +299,7 @@ def obtain_p1_p2_p3(rates_frame_p3):
         return p1_range_localminimas, p1_range_localmaximas, HH_HL_df, p1, p2, p3
 
 
-# In[80]:
+# In[7]:
 
 
 def validate_and_sell(rates_frame_p3, p3_rates_frame, sell_tp):
@@ -414,12 +414,6 @@ def validate_and_sell(rates_frame_p3, p3_rates_frame, sell_tp):
         SL_size = None
         return Sell, SL_price, TP1_price, OB_size, Entry_price, SL_size, p1, p2, p2_bos, p3, p4
     else:
-        p2_bos = p2_bos.drop_duplicates(subset=["time", "price"])
-        p1 = p1.drop_duplicates(subset=["time", "price"])
-        p2 = p2.drop_duplicates(subset=["time", "price"])
-        num_rows_p2 = p2.shape[0]
-        p3 = p3.drop_duplicates(subset=["time", "price"])
-        p3 = p3.loc[p3.index.repeat(num_rows_p2)].reset_index(drop=True)
         SL_price = round(p3["price"].iloc[0] + breathing_room,pip_precision)
         OB_size = round(p3["price"].iloc[0] - p2_bos["price"].min(), pip_precision)
         Entry_price = round(p2_bos["price"].min() + 0.6*OB_size - breathing_room, pip_precision)
@@ -436,7 +430,7 @@ def validate_and_sell(rates_frame_p3, p3_rates_frame, sell_tp):
             return Sell, SL_price, TP1_price, OB_size, Entry_price, SL_size, p1, p2, p2_bos, p3, p4
 
 
-# In[81]:
+# In[32]:
 
 
 # verify p4 before entry:

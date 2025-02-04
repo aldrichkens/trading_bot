@@ -1,7 +1,5 @@
-backup/
 ~$numerical data.xlsx
 .ipynb_checkpoints/
-'Test Files'/
-Test\ Files/
 Completed_notebook_files/
-./parameters.txt
+parameters.txt
+test_files/parameters.txt
