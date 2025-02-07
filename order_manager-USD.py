@@ -28,23 +28,15 @@ def log_in_to_mt5():
     print("Connected to MT5 successfully")
 
 
-# In[13]:
+# In[5]:
 
 
-def calculate_pip_value():
-    tick = mt5.symbol_info_tick('USDJPY')
-    ask_price = tick.ask
-    
-    pip_value = (0.01 * 100000) / ask_price
-    return pip_value
-    
 def calculate_lot_size(SL_size):
     account_info = mt5.account_info()
     account_size = account_info.balance
     
     risk_amount = round(account_size,5) * risk_percent / 100
-
-    pip_value = calculate_pip_value()
+    
     lot_size = (risk_amount) / (SL_size * pip_value)
     lot_size = round(lot_size,2)
     
@@ -53,7 +45,7 @@ def calculate_lot_size(SL_size):
 
 # ### BUY LIMIT ORDER 
 
-# In[20]:
+# In[12]:
 
 
 def place_buy_limit_order(symbol,limit_price, sl_price, tp_price, buy_tp):
@@ -81,7 +73,7 @@ def place_buy_limit_order(symbol,limit_price, sl_price, tp_price, buy_tp):
         "type": mt5.ORDER_TYPE_BUY_LIMIT,
         "price": limit_price,
         "sl": sl_price,
-        "TP": tp_price,
+        "tp": tp_price,
         "deviation": 50,
         "magic": 123456,
         "type_time": mt5.ORDER_TIME_GTC,
@@ -106,7 +98,7 @@ def place_buy_limit_order(symbol,limit_price, sl_price, tp_price, buy_tp):
         "type": mt5.ORDER_TYPE_BUY_LIMIT,
         "price": limit_price,
         "sl": sl_price,
-        "TP": buy_tp,
+        "tp": buy_tp,
         "deviation": 50,
         "magic": 123456,
         "type_time": mt5.ORDER_TIME_GTC,
@@ -127,7 +119,7 @@ def place_buy_limit_order(symbol,limit_price, sl_price, tp_price, buy_tp):
 
 # ### BUY STOP ORDER
 
-# In[23]:
+# In[24]:
 
 
 def place_buy_stop_order(symbol,stop_price, sl_price, tp_price, buy_tp):
@@ -149,7 +141,7 @@ def place_buy_stop_order(symbol,stop_price, sl_price, tp_price, buy_tp):
         "type": mt5.ORDER_TYPE_BUY_STOP,  # Buy stop order
         "price": stop_price,  # The price at which the order will trigger (must be above current market price)
         "sl": sl_price,        # Stop Loss level
-        "TP": tp_price,        # Take Profit level
+        "tp": tp_price,        # Take Profit level
         "deviation": 50,       # Max price deviation (not used in pending orders)
         "magic": 123456,       # Unique identifier for your trades
         "type_time": mt5.ORDER_TIME_GTC,  # Good Till Cancelled
@@ -177,8 +169,8 @@ def place_buy_stop_order(symbol,stop_price, sl_price, tp_price, buy_tp):
         "volume": round(lot_size * 0.2,2),
         "type": mt5.ORDER_TYPE_BUY_STOP,  # Buy stop order
         "price": stop_price,  # The price at which the order will trigger (must be above current market price)
-        "SL": sl_price,        # Stop Loss level
-        "TP": buy_tp,
+        "sl": sl_price,        # Stop Loss level
+        "tp": buy_tp,        # Take Profit level
         "deviation": 50,       # Max price deviation (not used in pending orders)
         "magic": 123456,       # Unique identifier for your trades
         "type_time": mt5.ORDER_TIME_GTC,  # Good Till Cancelled
@@ -187,6 +179,7 @@ def place_buy_stop_order(symbol,stop_price, sl_price, tp_price, buy_tp):
 
     # Send the trade request
     result2 = mt5.order_send(request2)
+    
     # Check the result
     if result2 is None:
         print("Failed to send order. Error:", mt5.last_error())
@@ -203,7 +196,7 @@ def place_buy_stop_order(symbol,stop_price, sl_price, tp_price, buy_tp):
 
 # ### SELL LIMIT ORDER
 
-# In[25]:
+# In[26]:
 
 
 def place_sell_limit_order(symbol,limit_price, sl_price, tp_price, sell_tp):
@@ -232,7 +225,7 @@ def place_sell_limit_order(symbol,limit_price, sl_price, tp_price, sell_tp):
         "type": mt5.ORDER_TYPE_SELL_LIMIT,  # Sell limit order
         "price": limit_price,  # The price at which the order will trigger
         "sl": sl_price,        # Stop Loss level
-        "TP": tp_price,        # Take Profit level
+        "tp": tp_price,        # Take Profit level
         "deviation": 50,       # Max price deviation (not used in pending orders)
         "magic": 123456,       # Unique identifier for your trades,
         "type_time": mt5.ORDER_TIME_GTC,  # Good Till Cancelled
@@ -261,7 +254,7 @@ def place_sell_limit_order(symbol,limit_price, sl_price, tp_price, sell_tp):
         "type": mt5.ORDER_TYPE_SELL_LIMIT,  # Sell limit order
         "price": limit_price,  # The price at which the order will trigger
         "sl": sl_price,        # Stop Loss level
-        "TP": sell_tp,        # Take Profit level
+        "tp": sell_tp,        # Take Profit level
         "deviation": 50,       # Max price deviation (not used in pending orders)
         "magic": 123456,       # Unique identifier for your trades,
         "type_time": mt5.ORDER_TIME_GTC,  # Good Till Cancelled
@@ -286,7 +279,7 @@ def place_sell_limit_order(symbol,limit_price, sl_price, tp_price, sell_tp):
 
 # ### SELL STOP ORDER
 
-# In[27]:
+# In[30]:
 
 
 def place_sell_stop_order(symbol,stop_price, sl_price, tp_price, sell_tp):
@@ -315,7 +308,7 @@ def place_sell_stop_order(symbol,stop_price, sl_price, tp_price, sell_tp):
         "type": mt5.ORDER_TYPE_SELL_STOP,  # Sell stop order
         "price": stop_price,  # The price at which the order will trigger (must be below current market price)
         "sl": sl_price,        # Stop Loss level
-        "TP": tp_price,        # Take Profit level
+        "tp": tp_price,        # Take Profit level
         "deviation": 50,       # Max price deviation (not used in pending orders)
         "magic": 123456,       # Unique identifier for your trades
         "type_time": mt5.ORDER_TIME_GTC,  # Good Till Cancelled
@@ -345,7 +338,7 @@ def place_sell_stop_order(symbol,stop_price, sl_price, tp_price, sell_tp):
         "type": mt5.ORDER_TYPE_SELL_STOP,  # Sell stop order
         "price": stop_price,  # The price at which the order will trigger (must be below current market price)
         "sl": sl_price,        # Stop Loss level
-        "TP": sell_tp,        # Take Profit level
+        "tp": sell_tp,        # Take Profit level
         "deviation": 50,       # Max price deviation (not used in pending orders)
         "magic": 123456,       # Unique identifier for your trades
         "type_time": mt5.ORDER_TIME_GTC,  # Good Till Cancelled
@@ -400,7 +393,7 @@ def trail_stop_loss(symbol, new_stop_loss):
             "action": mt5.TRADE_ACTION_SLTP,  # Specify action for Stop Loss / Take Profit modification
             "symbol": position.symbol,        # Symbol of the position
             "sl": new_stop_loss,              # New Stop Loss price provided by your logic
-            "TP": position.tp,                # Keep the existing Take Profit
+            "tp": position.tp,                # Keep the existing Take Profit
             "position": position.ticket,      # Position ID of the trade to modify
             "deviation": 50,                  # Max price deviation allowed
             "magic": position.magic,          # Unique identifier for your trades
@@ -534,10 +527,4 @@ def count_number_of_trades(symbol):
             # Count the trades
             trade_count = int(len(unique_open_trades)/2)
     return trade_count
-
-
-# In[ ]:
-
-
-
 
